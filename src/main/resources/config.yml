@@ -1,0 +1,29 @@
+
+questions:
+  time_between_questions: 1200
+  round_length: 600
+
+win_amount_money: 1000
+win_amount_items:
+  DIAMOND: 64
+
+
+categories:
+  - 'General Knowledge'
+  - 'Entertainment: Books'
+  - 'Entertainment: Film'
+  - 'Entertainment: Music'
+  - 'Entertainment: Musicals & Theatres'
+  - 'Entertainment: Television'
+  - 'Entertainment: Video Games'
+  - 'Entertainment: Board Games'
+  - 'Science & Nature'
+  - 'Science: Computers'
+  - 'Science: Mathematics'
+  - 'Mythology'
+  - 'Sports'
+  - 'Geography'
+  - 'History'
+  - 'Art'
+  - 'Celebrities'
+  - 'Animals'

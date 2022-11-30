@@ -1,0 +1,7 @@
+name: ChatTrivia
+version: '${project.version}'
+main: com.etsuni.chattrivia.ChatTrivia
+api-version: 1.13
+commands:
+  trivia:
+    description: Trivia command
