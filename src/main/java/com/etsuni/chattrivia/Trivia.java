@@ -3,12 +3,13 @@ package com.etsuni.chattrivia;
 import com.google.gson.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.*;
 import java.util.*;
 
-import static com.etsuni.chattrivia.ChatTrivia.currentQuestion;
+import static com.etsuni.chattrivia.ChatTrivia.plugin;
 
 public class Trivia {
 
@@ -26,43 +27,43 @@ public class Trivia {
 
     public void triviaLoop() {
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        Bukkit.broadcastMessage("ENTERING LOOP");
 
         loopId = scheduler.scheduleSyncRepeatingTask(ChatTrivia.plugin, new Runnable() {
             @Override
             public void run() {
-                if(currentQuestion == null) {
-                    makeQuestion();
-                    ask(currentQuestion);
-                }
+                QuestionList.getInstance().newQuestion(makeQuestion());
+                ask(QuestionList.getInstance().getQuestion());
             }
-        },0, 100);
+        },0, plugin.getCustomConfig().getInt("questions.time_between_questions")
+                + plugin.getCustomConfig().getInt("questions.round_length") + 100);
     }
 
 
     public void ask(Question question) {
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        Bukkit.broadcastMessage(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] "
+        broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] "
                 + question.getQuestion());
 
-        Bukkit.broadcastMessage(ChatColor.GREEN + "A - " + question.getA());
-        Bukkit.broadcastMessage(ChatColor.GREEN + "B - " + question.getB());
-        Bukkit.broadcastMessage(ChatColor.GREEN + "C - " + question.getC());
-        Bukkit.broadcastMessage(ChatColor.GREEN + "D - " + question.getD());
+        broadcast(ChatColor.GREEN + "A - " + question.getA());
+        broadcast(ChatColor.GREEN + "B - " + question.getB());
+        broadcast(ChatColor.GREEN + "C - " + question.getC());
+        broadcast(ChatColor.GREEN + "D - " + question.getD());
 
 
         askId = scheduler.scheduleSyncRepeatingTask(ChatTrivia.plugin, new Runnable() {
             @Override
             public void run() {
-                if(currentQuestion != null && currentQuestion.getAnswered()) {
-                    currentQuestion.setAcceptingAnswers(false);
-                    scheduler.cancelTask(askId);
-                    delay();
-                }else if(currentCount >= 600){
-                    Objects.requireNonNull(currentQuestion).setAcceptingAnswers(false);
-                    Bukkit.broadcastMessage("NO ONE ANSWERED CORRECTLY");
+                if(question.getAnswered()) {
+                    question.reset();
+                    question.setAcceptingAnswers(false);
                     currentCount = 0;
-                    delay();
+                    scheduler.cancelTask(askId);
+                }else if(currentCount >= 600){
+                    question.reset();
+                    Objects.requireNonNull(question).setAcceptingAnswers(false);
+                    broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
+                            "No one answered the question correctly!");
+                    currentCount = 0;
                     scheduler.cancelTask(askId);
                 } else{
                     currentCount++;
@@ -72,31 +73,27 @@ public class Trivia {
 
     }
 
-    public void delay() {
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-
-        scheduler.scheduleSyncDelayedTask(ChatTrivia.plugin, new Runnable() {
-            @Override
-            public void run() {
-                currentQuestion = null;
-            }
-        }, 600);
-    }
-
-    public void makeQuestion(){
-
+    public Question makeQuestion(){
+        Question newQuestion = new Question();
         try(Reader reader = new FileReader(triviaJSON)) {
             GsonBuilder builder = new GsonBuilder();
             Gson gson = builder.create();
             JsonArray questions = new JsonParser().parse(reader).getAsJsonArray();
             Random random = new Random();
             int max = questions.size();
-            currentQuestion = gson.fromJson(questions.get(random.nextInt(max)).getAsJsonObject(), Question.class);
+            newQuestion = gson.fromJson(questions.get(random.nextInt(max)).getAsJsonObject(), Question.class);
 
         } catch (IOException e){
             e.printStackTrace();
         }
 
+        return newQuestion;
+    }
+
+    public static void broadcast(String message) {
+        for(Player player : Bukkit.getServer().getOnlinePlayers()) {
+            player.sendMessage(message);
+        }
     }
 
 }

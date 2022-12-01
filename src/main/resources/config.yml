@@ -1,29 +1,17 @@
-
+#The numbers in this config are amount of ticks. 20 ticks = 1 second; so 1 minute would be 1200
 questions:
   time_between_questions: 1200
   round_length: 600
 
-win_amount_money: 1000
-win_amount_items:
-  DIAMOND: 64
+#Set this to more than -1 if you would like players to not be able to spam answers, but still be able to answer more than once
+cooldown: -1
 
-
-categories:
-  - 'General Knowledge'
-  - 'Entertainment: Books'
-  - 'Entertainment: Film'
-  - 'Entertainment: Music'
-  - 'Entertainment: Musicals & Theatres'
-  - 'Entertainment: Television'
-  - 'Entertainment: Video Games'
-  - 'Entertainment: Board Games'
-  - 'Science & Nature'
-  - 'Science: Computers'
-  - 'Science: Mathematics'
-  - 'Mythology'
-  - 'Sports'
-  - 'Geography'
-  - 'History'
-  - 'Art'
-  - 'Celebrities'
-  - 'Animals'
+rewards:
+  win_money: true
+  win_amount_money: 1000
+  win_item: true
+  #Set the type of item(MUST BE IN ALL CAPS) and the amount below
+  win_amount_item:
+      ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND
+      amount: 1
