@@ -58,7 +58,7 @@ public class Trivia {
                     question.setAcceptingAnswers(false);
                     currentCount = 0;
                     scheduler.cancelTask(askId);
-                }else if(currentCount >= 600){
+                }else if(currentCount >= plugin.getCustomConfig().getInt("questions.round_length")){
                     question.reset();
                     Objects.requireNonNull(question).setAcceptingAnswers(false);
                     broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
