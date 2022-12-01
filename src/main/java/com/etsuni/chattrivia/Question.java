@@ -10,7 +10,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -55,7 +54,6 @@ public class Question implements Listener {
         }
         String msg = event.getMessage();
         Player player = event.getPlayer();
-        player.sendMessage("Correct answer: " + QuestionList.getInstance().getQuestion().getAnswer());
         FileConfiguration config = plugin.getCustomConfig();
         Boolean foundChar = false;
         for(String str : possibleAnswers) {
@@ -64,7 +62,6 @@ public class Question implements Listener {
             }
         }
         if(!foundChar) {
-            player.sendMessage("returning");
             return;
         }
 
@@ -105,7 +102,7 @@ public class Question implements Listener {
             public void run() {
                 FileConfiguration config = plugin.getCustomConfig();
                 ItemStack item = config.getItemStack("rewards.win_amount_item");
-                int winAmount = config.getInt("rewards.win_amount_money");
+                int winAmount = config.getInt("rewards.win_amount_money") > 0 ? config.getInt("rewards.win_amount_money"): 1;
                 if(config.getBoolean("rewards.win_item") && config.getBoolean("rewards.win_money")) {
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
                             ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly and won $"
@@ -115,8 +112,9 @@ public class Question implements Listener {
                 }
                 else if(config.getBoolean("rewards.win_money") && !config.getBoolean("rewards.win_item")){
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
-                            ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly and won "
-                            + plugin.getCustomConfig().getString("win_amount_money"));
+                            ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly and won $"
+                            + winAmount + "!");
+                    getEconomy().depositPlayer(player, winAmount);
                 }
                 else if(!config.getBoolean("rewards.win_money") && config.getBoolean("rewards.win_item")) {
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +

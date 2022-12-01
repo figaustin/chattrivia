@@ -8,7 +8,7 @@ cooldown: -1
 
 rewards:
   win_money: true
-  win_amount_money: 1000
+  win_amount_money: 100
   win_item: true
   #Set the type of item(MUST BE IN ALL CAPS) and the amount below
   win_amount_item:
