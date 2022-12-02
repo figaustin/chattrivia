@@ -101,12 +101,12 @@ public class Question implements Listener {
             @Override
             public void run() {
                 FileConfiguration config = plugin.getCustomConfig();
-                ItemStack item = config.getItemStack("rewards.win_amount_item");
+                ItemStack item = config.getItemStack(ChatColor.translateAlternateColorCodes('&', "rewards.win_amount_item"));
                 int winAmount = config.getInt("rewards.win_amount_money") > 0 ? config.getInt("rewards.win_amount_money"): 1;
                 if(config.getBoolean("rewards.win_item") && config.getBoolean("rewards.win_money")) {
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
                             ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly and won $"
-                            + winAmount + " and " + item.getAmount() + " " + item.getType().toString() + "!");
+                            + winAmount + " and " + item.getAmount() + " " + broadcastItem(item) + "!");
                     player.getInventory().addItem(item);
                     getEconomy().depositPlayer(player, winAmount);
                 }
@@ -119,15 +119,37 @@ public class Question implements Listener {
                 else if(!config.getBoolean("rewards.win_money") && config.getBoolean("rewards.win_item")) {
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
                             ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly and won " +
-                            item.getAmount() + " " + item.getType().toString() + "!");
+                            item.getAmount() + " " + broadcastItem(item) + "!");
                     player.getInventory().addItem(item);
                 } else {
                     Trivia.broadcast(ChatColor.GOLD + "[" + ChatColor.GREEN + "TRIVIA" + ChatColor.GOLD + "] " +
                             ChatColor.RESET + player.getDisplayName() + ChatColor.GOLD + " has answered correctly!");
                 }
+
+                if(config.getString("rewards.win_command") != null) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), config.getString("rewards.win_command")
+                            .replace("%player%", player.getName()));
+                }
             }
         }, 1);
 
+    }
+
+    public String broadcastItem(ItemStack item) {
+        String str;
+
+        if(item.hasItemMeta()) {
+            if(item.getItemMeta().getDisplayName() != null) {
+                str = item.getItemMeta().getDisplayName();
+            }
+            else {
+                str = item.getType().toString();
+            }
+        } else {
+            str = item.getType().toString();
+        }
+
+        return str;
     }
 
     public void reset() {

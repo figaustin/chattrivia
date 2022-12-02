@@ -12,6 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public final class ChatTrivia extends JavaPlugin implements Listener {
@@ -32,6 +35,7 @@ public final class ChatTrivia extends JavaPlugin implements Listener {
         VERSION = this.getServer().getVersion();
 
         createCustomConfig();
+        updateConfig();
         createJson();
         this.getCommand("trivia").setExecutor(new Commands());
         this.getServer().getPluginManager().registerEvents(new Question(), this);
@@ -53,17 +57,6 @@ public final class ChatTrivia extends JavaPlugin implements Listener {
         log.info(String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
     }
 
-    public File getCustomConfigFile() {
-        return this.customConfigFile;
-    }
-
-    public FileConfiguration getCustomConfig() {
-        return this.customConfig;
-    }
-
-    public void setCustomConfig(FileConfiguration fileConfiguration) {
-        this.customConfig = fileConfiguration;
-    }
 
     private void createCustomConfig() {
         customConfigFile = new File(getDataFolder(), "config.yml");
@@ -82,6 +75,26 @@ public final class ChatTrivia extends JavaPlugin implements Listener {
 
     }
 
+    public void updateConfig() {
+        File config = new File(getDataFolder(), "config.yml");
+        YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(config);
+        InputStreamReader defConfigStream = new InputStreamReader(getResource("config.yml"), StandardCharsets.UTF_8);
+        YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+
+        for(String str : internalYamlConfig.getKeys(true)) {
+            if(!externalYamlConfig.contains(str)) {
+                externalYamlConfig.set(str, internalYamlConfig.get(str));
+            }
+        }
+        try {
+            externalYamlConfig.save(config);
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+
+
+    }
+
 
     private void createJson() {
         triviaJSON = new File(ChatTrivia.plugin.getDataFolder(), "trivia.json");
@@ -92,6 +105,17 @@ public final class ChatTrivia extends JavaPlugin implements Listener {
 
     }
 
+    public File getCustomConfigFile() {
+        return this.customConfigFile;
+    }
+
+    public FileConfiguration getCustomConfig() {
+        return this.customConfig;
+    }
+
+    public void setCustomConfig(FileConfiguration fileConfiguration) {
+        this.customConfig = fileConfiguration;
+    }
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;

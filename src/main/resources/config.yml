@@ -15,3 +15,6 @@ rewards:
       ==: org.bukkit.inventory.ItemStack
       type: DIAMOND
       amount: 1
+  #If you put something in between the '', it will run your command when someone wins. Do not put the /
+  #Use %player% , in place of the Player's name!
+  win_command: ""
